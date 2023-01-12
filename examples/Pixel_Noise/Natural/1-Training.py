@@ -25,27 +25,49 @@ if __name__ == '__main__':
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    # Download data
-    # Data will be downloaded and stored in the directory ```data```. This data was also used in this [paper](https://openaccess.thecvf.com/content_CVPR_2019/papers/Krull_Noise2Void_-_Learning_Denoising_From_Single_Noisy_Images_CVPR_2019_paper.pdf) and many others.
+    # # Download data
+    # # Data will be downloaded and stored in the directory ```data```. This data was also used in this [paper](https://openaccess.thecvf.com/content_CVPR_2019/papers/Krull_Noise2Void_-_Learning_Denoising_From_Single_Noisy_Images_CVPR_2019_paper.pdf) and many others.
 
-    # create a folder for our data
-    if not os.path.isdir('./data'):
-        os.mkdir('data')
+    # # create a folder for our data
+    # if not os.path.isdir('./data'):
+    #     os.mkdir('data')
 
-    # check if data has been downloaded already
-    zipPath="data/BSD68_reproducibility.zip"
-    if not os.path.exists(zipPath):
-        #download and unzip data
-        data = urllib.request.urlretrieve('https://cloud.mpi-cbg.de/index.php/s/pbj89sV6n6SyM29/download', zipPath)
-        with zipfile.ZipFile(zipPath, 'r') as zip_ref:
-            zip_ref.extractall("data")
+    # # check if data has been downloaded already
+    # zipPath="data/BSD68_reproducibility.zip"
+    # if not os.path.exists(zipPath):
+    #     #download and unzip data
+    #     data = urllib.request.urlretrieve('https://cloud.mpi-cbg.de/index.php/s/pbj89sV6n6SyM29/download', zipPath)
+    #     with zipfile.ZipFile(zipPath, 'r') as zip_ref:
+    #         zip_ref.extractall("data")
     
     # Training Data Preparation
     # For training we need to follow some preprocessing steps first which will prepare the data for training purposes.
     # We start by reading the training and validation data first from ```data``` folder. 
 
-    train_data = np.load('data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25.npy')
-    val_data = np.load('data/BSD68_reproducibility_data/val/DCNN400_validation_gaussian25.npy')
+    # train_data = np.load('Backup/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25.npy')
+    # val_data = np.load('Backup/data/BSD68_reproducibility_data/val/DCNN400_validation_gaussian25.npy')
+    
+    import cv2
+    import fileTool as FT
+    
+    files = FT.getAllFiles('/home/taichigraphics/Desktop/Sensetime/HDN/dataset/png', ext='png')
+    indexs = np.arange(len(files))
+    np.random.shuffle(indexs)
+    train_index = indexs[:100]
+    val_index = indexs[-100:]
+
+    train_data = []
+    val_data = []
+    for i in train_index:
+        img = cv2.imread(files[i], cv2.IMREAD_GRAYSCALE)
+        img = np.array(img, dtype=np.float32)
+        train_data.append(img)
+    for i in val_index:
+        img = cv2.imread(files[i], cv2.IMREAD_GRAYSCALE)
+        img = np.array(img, dtype=np.float32)
+        val_data.append(img)
+    train_data = np.array(train_data)
+    val_data = np.array(val_data)
 
     # We specify the std of Gaussian noise given by ```gaussian_noise_std``` parameter in the next cell. For this dataset, it is 25.
     gaussian_noise_std = 25
