@@ -46,43 +46,58 @@ if __name__ == '__main__':
 
     # train_data = np.load('Backup/data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25.npy')
     # val_data = np.load('Backup/data/BSD68_reproducibility_data/val/DCNN400_validation_gaussian25.npy')
-    
+
+    # # We specify the std of Gaussian noise given by ```gaussian_noise_std``` parameter in the next cell. For this dataset, it is 25.
+    # gaussian_noise_std = 25
+
+    # # We extract overlapping patches of size ```patch_size x patch_size``` from training and validation images.
+    # # Usually 128x128 patches work well for most natural image datasets
+    # patch_size = 128
+
+    # img_width = train_data.shape[2]
+    # img_height = train_data.shape[1]
+    # num_patches = int(float(img_width*img_height)/float(patch_size**2)*2)
+    # train_images = utils.extract_patches(train_data, patch_size, num_patches)
+    # val_images = utils.extract_patches(val_data, patch_size, num_patches)
+    # train_images = utils.augment_data(train_images) 
+    # test_images = val_images[:100]
+    # img_shape = (train_images.shape[1], train_images.shape[2])
+    # print("Shape of training images:", train_images.shape, "Shape of validation images:", val_images.shape)
+
     import cv2
     import fileTool as FT
     
     files = FT.getAllFiles('/home/taichigraphics/Desktop/Sensetime/HDN/dataset/png', ext='png')
-    indexs = np.arange(len(files))
-    np.random.shuffle(indexs)
-    train_index = indexs[:100]
-    val_index = indexs[-100:]
 
-    train_data = []
-    val_data = []
-    for i in train_index:
-        img = cv2.imread(files[i], cv2.IMREAD_GRAYSCALE)
+    data = []
+    for file in files:
+        img = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
         img = np.array(img, dtype=np.float32)
-        train_data.append(img)
-    for i in val_index:
-        img = cv2.imread(files[i], cv2.IMREAD_GRAYSCALE)
-        img = np.array(img, dtype=np.float32)
-        val_data.append(img)
-    train_data = np.array(train_data)
-    val_data = np.array(val_data)
+        data.append(img)
+    data = np.array(data)
 
     # We specify the std of Gaussian noise given by ```gaussian_noise_std``` parameter in the next cell. For this dataset, it is 25.
-    gaussian_noise_std = 25
+    gaussian_noise_std = 10
 
     # We extract overlapping patches of size ```patch_size x patch_size``` from training and validation images.
     # Usually 128x128 patches work well for most natural image datasets
     patch_size = 128
 
-    img_width = train_data.shape[2]
-    img_height = train_data.shape[1]
+    img_width = data.shape[2]
+    img_height = data.shape[1]
     num_patches = int(float(img_width*img_height)/float(patch_size**2)*2)
-    train_images = utils.extract_patches(train_data, patch_size, num_patches)
-    val_images = utils.extract_patches(val_data, patch_size, num_patches)
-    train_images = utils.augment_data(train_images) 
+    images = utils.extract_patches(data, patch_size, num_patches)
+    print("Shape of total images:", images.shape)
+
+    np.random.shuffle(images)
+    train_size = 100000
+    val_size = 500
+
+    train_images = images[:train_size]
+    val_images = images[-val_size:]
     test_images = val_images[:100]
+
+    # train_images = utils.augment_data(train_images) 
     img_shape = (train_images.shape[1], train_images.shape[2])
     print("Shape of training images:", train_images.shape, "Shape of validation images:", val_images.shape)
 
